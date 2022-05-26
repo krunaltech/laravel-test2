@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Workshop;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -13,7 +14,19 @@ class EventsController extends BaseController
 {
     public function getWarmupEvents() {
         $event = new Event;
-        return $event->eventWithWorkshops();
+        $eventData = $event->all();
+        $response = [];
+        foreach ($eventData as $idx => $eventItem) {
+            $response[] = array(
+                "id" => $eventItem->id,
+                "name" => $eventItem->name,
+                "created_at" => $eventItem->created_at,
+                "updated_at" => $eventItem->updated_at,
+                "workshops" => $eventItem->workshop
+            );
+        }
+    
+        return $response;
     }
 
     /*
@@ -181,6 +194,22 @@ class EventsController extends BaseController
      */
 
     public function getFutureEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 2');
+        $workshop = new Workshop;
+        $futureEventIds = $workshop->where("start", ">", date("y-m-d"))
+            ->select("event_id")->distinct()->get()->toArray();
+        
+        $event = new Event;
+        $response = [];
+        foreach ($futureEventIds as $eventId) {
+            $eventData = $event->find($eventId)->first(); 
+            $response[] = array(
+                "id" => $eventData->id,
+                "name" => $eventData->name,
+                "created_at" => $eventData->created_at,
+                "updated_at" => $eventData->updated_at,
+                "workshops" => $eventData->workshop
+            );
+        }
+        return $response;
     }
 }

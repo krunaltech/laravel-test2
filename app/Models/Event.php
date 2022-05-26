@@ -10,9 +10,9 @@ class Event extends Model
 {
     protected $table = 'events';
 
-    public function eventWithWorkshops()
+    public function workshop()
     {
-        return $this->morphOne(Workshop::class, 'event_id')->oldestOfMany();
+        return $this->hasMany(Workshop::class);
     }
 
 }
